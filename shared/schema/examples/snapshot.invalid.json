@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-11-06T21:05:00Z",
+  "indexes": [
+    {
+      "symbol": "^GSPC",
+      "label": "S&P 500",
+      "price": 7475.46,
+      "change": -25.12,
+      "changePercent": -0.33,
+      "invert": false,
+      "sparkline": [7500.58, 7491.2, 7475.46],
+      "isProxy": false,
+      "asOf": "2026-11-06T21:00:00Z"
+    }
+  ],
+  "sentiment": {
+    "verdict": "NEUTRAL",
+    "position": 53,
+    "marketStatus": "after_hours",
+    "summary": "Negative control: this snapshot must be rejected.",
+    "headlines": [],
+    "components": [
+      { "name": "vix_percentile", "score": 44, "weight": 0.3 },
+      { "name": "trend", "score": 58, "weight": 0.25 },
+      { "name": "momentum", "score": 50, "weight": 0.2 }
+    ]
+  },
+  "gainers": [
+    { "symbol": "NVDA", "name": "NVIDIA Corp.", "price": 188.42, "changePercent": 6.12 }
+  ],
+  "losers": [
+    { "symbol": "NKE", "name": "Nike Inc.", "price": 61.2, "changePercent": -4.1 }
+  ],
+  "mostActive": [
+    {
+      "symbol": "TSLA",
+      "name": "Tesla Inc.",
+      "price": 240.1,
+      "changePercent": -1.2,
+      "volume": 123456789,
+      "dayLow": 238.05,
+      "dayHigh": 245.52
+    }
+  ],
+  "sources": { "indexes": "yfinance", "movers": "alpaca" },
+  "status": { "indexes": "fresh", "movers": "fresh" },
+  "feedDelaySeconds": 0,
+  "errors": []
+}

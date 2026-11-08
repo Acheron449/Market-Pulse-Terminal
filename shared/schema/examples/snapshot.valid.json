@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-11-06T21:05:00Z",
+  "indexes": [
+    {
+      "symbol": "^GSPC",
+      "label": "S&P 500",
+      "price": 7475.46,
+      "change": -25.12,
+      "changePercent": -0.33,
+      "invert": false,
+      "sparkline": [7500.58, 7491.20, 7486.44, 7479.90, 7468.02, 7475.46],
+      "isProxy": false,
+      "asOf": "2026-11-06T21:00:00Z"
+    },
+    {
+      "symbol": "^IXIC",
+      "label": "NASDAQ",
+      "price": 23850.12,
+      "change": 84.3,
+      "changePercent": 0.35,
+      "invert": false,
+      "sparkline": [23765.82, 23792.44, 23818.10, 23841.66, 23833.20, 23850.12],
+      "isProxy": false,
+      "asOf": "2026-11-06T21:00:00Z"
+    },
+    {
+      "symbol": "^DJI",
+      "label": "DOW JONES",
+      "price": 48210.66,
+      "change": -110.45,
+      "changePercent": -0.23,
+      "invert": false,
+      "sparkline": [48321.11, 48302.85, 48271.40, 48248.02, 48202.19, 48210.66],
+      "isProxy": false,
+      "asOf": "2026-11-06T21:00:00Z"
+    },
+    {
+      "symbol": "^RUT",
+      "label": "RUSSELL 2000",
+      "price": 2455.8,
+      "change": 4.12,
+      "changePercent": 0.17,
+      "invert": false,
+      "sparkline": [2451.68, 2449.02, 2453.31, 2448.55, 2452.10, 2455.8],
+      "isProxy": false,
+      "asOf": "2026-11-06T21:00:00Z"
+    },
+    {
+      "symbol": "^VIX",
+      "label": "VIX",
+      "price": 18.42,
+      "change": 0.55,
+      "changePercent": 3.08,
+      "invert": true,
+      "sparkline": [17.87, 17.94, 18.05, 18.21, 18.16, 18.42],
+      "isProxy": false,
+      "asOf": "2026-11-06T21:00:00Z"
+    }
+  ],
+  "sentiment": {
+    "verdict": "NEUTRAL",
+    "position": 53,
+    "marketStatus": "after_hours",
+    "summary": "Neutral mood: large caps slipped while the Nasdaq and Russell 2000 edged higher. Based on 5 of 5 signals.",
+    "headlines": [
+      {
+        "title": "Stocks end the week mixed as yields hold steady",
+        "url": "https://example.com/news/market-close",
+        "source": "Finnhub",
+        "publishedAt": "2026-11-06T20:15:00Z"
+      },
+      {
+        "title": "Small caps outperform for a second session",
+        "url": "https://example.com/news/small-caps",
+        "source": "Finnhub",
+        "publishedAt": "2026-11-06T18:40:00Z"
+      }
+    ],
+    "components": [
+      { "name": "volatility", "score": 44, "weight": 0.3 },
+      { "name": "trend", "score": 58, "weight": 0.25 },
+      { "name": "momentum", "score": 50, "weight": 0.2 },
+      { "name": "riskAppetite", "score": 70, "weight": 0.15 },
+      { "name": "headlineTone", "score": 52, "weight": 0.1 }
+    ]
+  },
+  "gainers": [
+    { "symbol": "NVDA", "name": "NVIDIA Corp.", "price": 188.42, "changePercent": 6.12 },
+    { "symbol": "AMD", "name": "Advanced Micro Devices", "price": 162.2, "changePercent": 4.85 },
+    { "symbol": "MRNA", "name": "Moderna Inc.", "price": 31.44, "changePercent": 4.1 }
+  ],
+  "losers": [
+    { "symbol": "NKE", "name": "Nike Inc.", "price": 61.2, "changePercent": -4.1 },
+    { "symbol": "PFE", "name": "Pfizer Inc.", "price": 24.85, "changePercent": -3.42 },
+    { "symbol": "INTC", "name": "Intel Corp.", "price": 21.1, "changePercent": -2.88 }
+  ],
+  "mostActive": [
+    {
+      "symbol": "TSLA",
+      "name": "Tesla Inc.",
+      "price": 240.1,
+      "changePercent": -1.2,
+      "volume": 123456789,
+      "dayLow": 238.05,
+      "dayHigh": 245.52
+    },
+    {
+      "symbol": "AAPL",
+      "name": "Apple Inc.",
+      "price": 201.5,
+      "changePercent": 0.65,
+      "volume": 98765432,
+      "dayLow": 199.8,
+      "dayHigh": 203.11
+    },
+    {
+      "symbol": "NVDA",
+      "name": "NVIDIA Corp.",
+      "price": 188.42,
+      "changePercent": 6.12,
+      "volume": 87654321,
+      "dayLow": 178.02,
+      "dayHigh": 189.4
+    }
+  ],
+  "sources": {
+    "indexes": "yfinance",
+    "movers": "alpaca",
+    "news": "finnhub",
+    "status": "alpaca"
+  },
+  "status": {
+    "indexes": "fresh",
+    "movers": "stale",
+    "sentiment": "fresh",
+    "news": "fresh"
+  },
+  "feedDelaySeconds": 900,
+  "errors": [
+    {
+      "section": "movers",
+      "provider": "alpaca",
+      "message": "screener timed out; serving the last good list"
+    }
+  ]
+}
