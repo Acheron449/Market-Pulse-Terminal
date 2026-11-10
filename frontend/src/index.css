@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  min-width: 360px;
+  background-image:
+    radial-gradient(1200px 600px at 15% -10%, rgba(0, 230, 118, 0.06), transparent 60%),
+    radial-gradient(900px 500px at 85% -20%, rgba(34, 211, 238, 0.05), transparent 55%);
+}
+
+/* Every figure uses tabular numerals so columns line up (AGENTS.md §7). */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.panel {
+  @apply rounded-2xl border border-edge bg-panel/80 shadow-[0_1px_0_rgba(255,255,255,0.03)_inset];
+}
+
+.skeleton {
+  @apply animate-pulse rounded-md bg-edge/70;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+*:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 2px;
+}

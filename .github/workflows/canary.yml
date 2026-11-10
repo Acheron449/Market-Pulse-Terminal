@@ -1,0 +1,43 @@
+# Daily live canary for the one dependency tests must never exercise.
+#
+# Everything else runs offline against recorded fixtures (AGENTS.md §8). This job is
+# the early warning that Yahoo changed shape or started blocking, so a failure means
+# "check the provider", not "relax the tests".
+name: Provider canary
+
+on:
+  schedule:
+    # 21:30 UTC on weekdays: after the US close, before the next session.
+    - cron: "30 21 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: canary
+  cancel-in-progress: true
+
+jobs:
+  yfinance:
+    name: yfinance index quotes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install dependencies
+        working-directory: backend
+        run: uv sync --frozen
+
+      - name: Check index quotes
+        working-directory: backend
+        run: uv run python ../scripts/canary.py

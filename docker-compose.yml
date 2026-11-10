@@ -1,0 +1,41 @@
+# Docker Compose for a self-hosted deployment (SRS §11, timeline Phase 6).
+#
+#   cp .env.example .env     # then set provider keys and ENABLE_LIVE_DATA=true
+#   docker compose up --build
+#
+# One container serves the API, the SSE stream and the built dashboard on :8000.
+# The SQLite last-good snapshot lives in a named volume, so restarts keep serving
+# the previous snapshot until the first refresh completes (FR-18).
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: market-pulse-terminal:0.1.0
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Replay is disabled in production by design; live providers must be on.
+      # Override APP_ENV=development here to run the recorded fixture locally.
+      APP_ENV: ${APP_ENV:-production}
+      ENABLE_LIVE_DATA: ${ENABLE_LIVE_DATA:-true}
+      DATABASE_PATH: /app/backend/data/mpt.sqlite3
+    volumes:
+      - mpt-data:/app/backend/data
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).status == 200 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  mpt-data:

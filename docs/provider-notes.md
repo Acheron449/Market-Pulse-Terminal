@@ -156,3 +156,33 @@ Copy into the PR description when provider calls change:
 - [ ] Fixtures recorded through `scripts/record_fixtures.py`, keys and account IDs stripped
 - [ ] No test or fixture refresh runs live from CI except the daily canary
 - [ ] Disclosure in §6 still accurate for the feed this call uses
+
+## 10. Implementation notes (v1.0)
+
+What the shipped adapters actually call, so §4 can be audited against the code. Every call
+below goes through the registry (`AGENTS.md` rule 3), so the token bucket and circuit
+breaker apply; no route or service calls a provider directly.
+
+| Section | Adapter | Calls per cycle | Notes |
+| --- | --- | --- | --- |
+| Index quotes (primary) | yfinance | 1 | One batched `download()` for all five symbols, 5-minute interval, downsampled to `SPARKLINE_POINTS` |
+| Index quotes (fallback) | Alpaca | 5 | One `/v2/stocks/bars` call per proxy ETF (SPY, QQQ, DIA, IWM, VIXY); flagged `isProxy` |
+| Index quotes (fallback) | Finnhub | 5 | One `/quote` call per proxy ETF; two-point sparkline because only open/previous close exist |
+| Gainers / losers | Alpaca | 1 | `/v1beta1/screener/stocks/movers?top=25` |
+| Most active | Alpaca | 2 | `/v1beta1/screener/stocks/most-actives`, then one batched `/v2/stocks/snapshots` for volume, day low and day high |
+| Movers (fallback) | yfinance | 3 | One `screen()` per list; most-actives is the only one carrying volume and range |
+| Market status | Alpaca | 1 | `/v2/clock`; the calendar is read from the bundled NYSE table, not fetched per cycle |
+| Headlines | Finnhub | 1 | `/news?category=general`, capped at five |
+| Chart bars | Alpaca, yfinance | on demand | Resolutions map to provider timeframes; 1-minute history is clamped to yfinance's 7-day window |
+
+Quota impact versus §4, all well inside the 70% ceiling: the Alpaca quote fallback adds
+15 calls/h if yfinance fails continuously (5 per quote cycle at 20 s), and the most-active
+snapshot adds 120 calls/h alongside the existing movers line. Both are fallback paths, so
+the steady-state figure in §4 is unchanged.
+
+Live access is opt-in: `ENABLE_LIVE_DATA` (default `false`) keeps tests, CI and a fresh
+clone offline, serving the recorded fixture in replay mode instead.
+
+Spikes S-01…S-08 in §7 remain **open**: no dated vendor verification has been recorded yet,
+so the numbers in §2 are still marked unverified and must not be quoted in a deployment
+plan. `scripts/canary.py` (daily in `canary.yml`) is the only automated live caller.

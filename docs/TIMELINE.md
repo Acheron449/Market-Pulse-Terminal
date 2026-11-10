@@ -170,3 +170,59 @@ Watchlists and symbol search, sector heatmap, economic calendar, price alerts, c
 - **Monday**: confirm the week's scope and open risks; update this timeline if a milestone moves.
 - **Daily**: merge small PRs behind green CI; agents work from `AGENTS.md` and the SRS requirement IDs.
 - **Friday**: demo the milestone against its exit criteria, record provider quota usage, and decide go or slip.
+
+## 8. Implementation status (8 November 2026)
+
+Current state of the build against §3, verified by the commands in `AGENTS.md` §3. This
+section is the working record until the first milestone demo rewrites it.
+
+| Phase | State | Evidence |
+| --- | --- | --- |
+| 0. Discovery and spikes | Partly done | Schema frozen with valid/invalid examples, monorepo and CI green, gen-types pipeline, `docs/provider-notes.md` quota and spike slots written. The dated vendor spikes (S-01…S-08) are still **open**, since they need real keys |
+| 1. MVP pipeline and UI | Done | yfinance provider, snapshot builder with last-good retention, `/api/market`, `/api/health`, static export path, themed dashboard with cards, sparklines, movers, skeletons and error states |
+| 2. Multi-provider and failover | Done | Alpaca and Finnhub adapters, ETF proxies flagged `isProxy`, registry with ordered failover, token buckets, circuit breaker, movers filters, provider status in `/api/health`; failure-injection tests |
+| 3. Auto-update engine | Done | NYSE calendar with holidays and early closes, per-section cadence scheduler with jitter/backoff/overlap guard, SQLite cold start, SSE with heartbeat plus polling fallback paused when hidden, refresh cooldown with 429 and `Retry-After` |
+| 4. Market mood and headlines | Done except calibration | Four plus one sentiment components with tests, mood gauge and panel, headline ingestion capped at five, template summary; the 20-day calibration in `docs/sentiment.md` §11 is open |
+| 5. Hardening and quality | Mostly done | Lint and strict type checks on both sides, contract tests, schema gate, Docker image, and a Playwright suite (`pnpm e2e`) that drives the real replay backend on :8010 with 12 tests (7 dashboard/replay, 3 chart, 2 axe accessibility) whose WCAG 2.1/2.2 A/AA gates fail on serious or critical findings. Open: Lighthouse performance pass, Advanced Charts decision, LLM summary (FR-12), soak test |
+| 6. Deploy and release | Ready, not released | Single-container build, Compose file, health check, production replay guard. No deployment or release tag has been made |
+
+Deliberate deviations from the SRS, all recorded in the README: `ENABLE_LIVE_DATA`
+(default off) gates provider access, replay mode serves the recorded fixture outside
+production, and the dashboard uses purpose-built SSE/polling hooks instead of TanStack
+Query. The contract, cadences, failover order, statuses and disclaimers are unchanged.
+
+### Commands a reviewer runs
+
+```bash
+# backend gates
+cd backend
+uv sync
+uv run ruff check . && uv run ruff format --check .
+uv run mypy app
+uv run pytest
+uv run python ../scripts/validate_schema.py
+uv run python ../scripts/gen_types.py --check
+
+# frontend gates
+cd ../frontend
+pnpm install
+pnpm lint && pnpm typecheck && pnpm test && pnpm build
+
+# browser suite: builds, starts the API in replay mode on :8010, runs Playwright + axe
+pnpm e2e:install       # once per machine; CI runs playwright install --with-deps
+pnpm e2e
+```
+
+`pnpm e2e` is self-contained: it type-checks and builds the SPA, then Playwright starts
+`uv run uvicorn app.main:app` on `127.0.0.1:8010` with `ENABLE_LIVE_DATA=false` and serves
+`frontend/dist` from that origin, so the suite never touches a provider and never needs the
+dev server. Specs live in `frontend/e2e/`: dashboard/replay contract (cards, mood gauge,
+movers, after-hours chip, replay disclosure, footer, refresh cooldown in the UI and the 429
+from the API), chart dialog states (open, loading, error with Retry, close, resolution
+switch, uncurated symbols), and axe-core accessibility gates on the dashboard and the open
+dialog. CI runs the same command in the `e2e` job of `ci.yml` and uploads `test-results` on
+failure.
+
+Still open after this: Lighthouse performance numbers, the Advanced Charts decision, the
+optional LLM summary, real-key provider verification and sentiment calibration, and the
+five-day soak — all recorded in the phase table above.

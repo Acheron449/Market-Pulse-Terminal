@@ -123,7 +123,7 @@ Position 24.33 → **24 → BEARISH**.
 }
 ```
 
-Component names are camelCase per `AGENTS.md` §5, and the SRS §6 sample now carries the same five names, scores and weights. The JSON Schema file (`shared/schema/market-snapshot.schema.json`) is the source of truth but does not exist in this repository yet: when it is created it must define these five component names schema-first, with backend models and frontend types generated from it (`AGENTS.md` §5).
+Component names are camelCase per `AGENTS.md` §5, and the SRS §6 sample carries the same five names, scores and weights. The component `name` enum lives in the JSON Schema (`shared/schema/market-snapshot.schema.json`, `$defs/component`), which is the source of truth: the Pydantic models and TypeScript types are generated from it with `./scripts/gen_types.sh`, so a change to these names has to land in the schema first (`AGENTS.md` §5).
 
 ## 8. Configuration
 
@@ -192,3 +192,23 @@ Phase 4 closes with a review; the timeline budgets half a day for it.
 | Date | Change | Reason |
 | --- | --- | --- |
 | 8 Nov 2026 | Initial methodology, weights and bands from SRS §10 | Phase 4 planning |
+
+## 12. Implementation status
+
+`services/sentiment.py` implements §3–§7 as pure functions; `tests/unit/test_sentiment.py`
+carries the table-driven cases from §10, including example A (54, `NEUTRAL`), example B
+(24, `BEARISH`) and example C (54, `UNKNOWN` with fewer than three components), plus each
+verdict band boundary and the renormalisation and non-finite guards. The snapshot builder
+supplies the inputs and never fabricates one: a missing or out-of-range input drops its
+component and the remaining weights renormalise.
+
+The lexicon headline tone component ships behind `ENABLE_HEADLINE_TONE` (default on) and is
+dropped automatically when there are no headlines. `ENABLE_LLM_SUMMARY` remains `false`
+and no key is read; when it is enabled the summary is cached per snapshot with the
+deterministic template as the fallback.
+
+**Open: calibration.** The Phase 4 task "calibration review across at least 20 historical
+days" has not been run, because it needs live index history that the offline test strategy
+never records. Until it is done, treat the weights and band boundaries as the documented
+defaults rather than a validated fit; they are configurable (`SENTIMENT_WEIGHTS`,
+`SENTIMENT_BANDS`) so a calibration pass changes configuration, not code.
